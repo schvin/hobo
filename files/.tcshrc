@@ -45,6 +45,7 @@ if ($?OSTYPE) then
     case "solaris":
       alias grep ggrep
       alias tar gtar
+      breaksw
     default:
       breaksw
   endsw
@@ -59,10 +60,15 @@ foreach FILE (~/.bash_history ~/.bash_logout ~/.bashrc ~/.asterisk_history \
   ln -s /dev/null $FILE
 end
 
-# create common directories
-foreach DIR (~/pub ~/src ~/bin ~/tmp ~/keys ~/projects)
-  if (! -e $DIR) then
-    mkdir $DIR
+# create common directories, link from desktop if appropriate
+foreach DIR (pub src bin tmp keys projects)
+  if (! -e ~/$DIR) then
+    mkdir ~/$DIR
+  endif
+  if (-e ~/Desktop) then
+    if (! -e ~/Desktop/$DIR) then
+      ln -s ~/$DIR ~/Desktop/$DIR
+     endif
   endif
 end
 
