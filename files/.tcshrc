@@ -12,6 +12,8 @@ endif
 
 umask 077
 unset autologout
+set autolist set color set colorcat
+set nobeep
 
 # shortcuts
 alias ls "ls -aF"
