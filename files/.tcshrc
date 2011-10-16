@@ -1,0 +1,75 @@
+#
+# $Id: .tcshrc,v 1.21 2009/04/06 21:23:19 schvin Exp $
+#
+
+# prompt
+if ($?TERM) then
+  switch ($TERM)
+    case "xterm*":
+      set prompt="%{\033]0;%n@%m\007%}{%!} %m:%~% "
+      breaksw
+    default:
+      set prompt="{%!} %m:%~% "
+      breaksw
+  endsw
+endif
+
+umask 077
+unset autologout
+
+# shortcuts
+alias ls "ls -aF"
+alias cvs '\cvs -d $CVSROOT \!*'
+alias stat "cvs status | egrep '^File|^\?'"
+alias statn "cvs status | egrep '^File|^\?' | grep -v 'Up-to-date'"
+alias vi nvi
+
+# keys
+bindkey ^U load-average
+bindkey ^[[1~ beginning-of-line
+bindkey ^[[4~ end-of-line
+
+# handy
+complete cd p/1/d/ # cd only to directories
+
+# env
+setenv CVS_RSH "/usr/bin/ssh"
+setenv EDITOR "vi"
+setenv IRCNAME "*Unknown*"
+setenv PATH ~/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin:/usr/ccs/bin:/usr/ucb:/usr/local/share/python
+setenv VISUAL "vi"
+
+# os-specific stuff
+if ($?OSTYPE) then
+  switch ($OSTYPE)
+    case "darwin":
+      alias lock '/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine'
+      setenv JAVA_HOME /System/Library/Frameworks/JavaVM.framework/Home/
+      breaksw
+    case "solaris":
+      alias grep ggrep
+    default:
+      breaksw
+  endsw
+endif
+
+# clean up annoying defaults
+foreach FILE (~/.bash_history ~/.bash_logout ~/.bashrc ~/.asterisk_history \
+    ~/.mysql_history)
+  if (-e $FILE) then
+    rm $FILE
+  endif
+  ln -s /dev/null $FILE
+end
+
+# create common directories
+foreach DIR (~/pub ~/src ~/bin ~/tmp ~/keys ~/projects)
+  if (! -e $DIR) then
+    mkdir $DIR
+  endif
+end
+
+# local
+if (-f ~/.tcshrc.local) then
+   source ~/.tcshrc.local
+endif
