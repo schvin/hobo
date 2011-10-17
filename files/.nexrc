@@ -1,0 +1,4 @@
+set noautoindent
+set exrc
+set shiftwidth=4
+map! ^O {^M}^[O^T
