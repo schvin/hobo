@@ -55,7 +55,7 @@ endif
 
 # clean up annoying defaults
 foreach FILE (~/.bash_history ~/.bash_logout ~/.bashrc ~/.asterisk_history \
-    ~/.mysql_history ~/.psql_history)
+    ~/.mysql_history ~/.psql_history ~/.sh_history)
   if (-e $FILE) then
     rm $FILE
   endif
