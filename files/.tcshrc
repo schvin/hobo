@@ -36,6 +36,7 @@ setenv EDITOR "vi"
 setenv IRCNAME "*Unknown*"
 setenv PATH ~/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin:/usr/ccs/bin:/usr/ucb:/usr/local/share/python
 setenv VISUAL "vi"
+setenv TMPDIR "~/tmp"
 
 # os-specific stuff
 if ($?OSTYPE) then
@@ -55,7 +56,7 @@ endif
 
 # clean up annoying defaults
 foreach FILE (~/.bash_history ~/.bash_logout ~/.bashrc ~/.asterisk_history \
-    ~/.mysql_history ~/.psql_history ~/.sh_history)
+    ~/.mysql_history ~/.psql_history)
   if (-e $FILE) then
     rm $FILE
   endif
