@@ -20,7 +20,9 @@ alias ls "ls -aF"
 alias cvs '\cvs -d $CVSROOT \!*'
 alias stat "cvs status | egrep '^File|^\?'"
 alias statn "cvs status | egrep '^File|^\?' | grep -v 'Up-to-date'"
-alias vi nvi
+if (-e /usr/local/bin/nvi || -e /usr/bin/nvi) then
+  alias vi nvi
+endif
 
 # keys
 bindkey ^U load-average
@@ -36,7 +38,7 @@ setenv EDITOR "vi"
 setenv IRCNAME "*Unknown*"
 setenv PATH ~/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin:/usr/ccs/bin:/usr/ucb:/usr/local/share/python
 setenv VISUAL "vi"
-setenv TMPDIR "~/tmp"
+setenv TMPDIR ~/tmp
 
 # os-specific stuff
 if ($?OSTYPE) then
