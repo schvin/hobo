@@ -17,3 +17,7 @@ setw -g window-status-fg blue
 setw -g window-status-alert-bg white
 setw -g window-status-current-bg black
 setw -g window-status-current-fg cyan
+
+setw -g mode-keys vi
+bind-key -t vi-copy 'v' begin-selection
+bind-key -t vi-copy 'y' copy-selection

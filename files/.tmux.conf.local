@@ -24,3 +24,7 @@ setw -g window-status-current-fg cyan
 set-option -g mouse-select-pane on
 set-option -g mouse-select-window on
 setw -g mode-mouse on
+
+setw -g mode-keys vi
+bind-key -t vi-copy 'v' begin-selection
+bind-key -t vi-copy 'y' copy-selection
