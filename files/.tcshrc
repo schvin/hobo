@@ -50,6 +50,10 @@ if ($?OSTYPE) then
       if(! -e ~/Music/iTunes) then
         ln -s /dev/null ~/Music/iTunes
       endif
+      if(-d ~/Pictures) then
+        mv ~/Pictures ~/Pictures.bad
+        ln -s /dev/null ~/Pictures
+      endif
       breaksw
     case "solaris":
       alias grep ggrep
