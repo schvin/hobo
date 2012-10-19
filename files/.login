@@ -3,5 +3,5 @@ if (-e /usr/bin/calendar) then
 endif
 
 if (-e /usr/local/bin/keychain) then
-  /usr/local/bin/keychain
+  /usr/local/bin/keychain --host `hostname -s`
 endif
