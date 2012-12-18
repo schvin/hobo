@@ -1,0 +1,4 @@
+#!/bin/sh
+
+mkdir ~/merlin-homedir
+sshfs schvin@pegasi.net:/users/s/schvin ~/merlin-homedir -oauto_cache,reconnect,volname=merlin-homedir
