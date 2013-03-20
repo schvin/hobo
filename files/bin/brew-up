@@ -1,0 +1,6 @@
+#!/bin/bash
+
+umask 022
+ftp_proxy=ftp://p4.a.internal:8080
+http_proxy=http://p4.a.internal:8080
+brew update && brew upgrade
