@@ -51,7 +51,8 @@ if ($?OSTYPE) then
         ln -s /dev/null ~/Music/iTunes
       endif
       if(-d ~/Pictures) then
-        mv ~/Pictures ~/Pictures.bad
+        echo "removing Pictures folder..."
+        sudo mv ~/Pictures ~/Pictures.bad
         ln -s /dev/null ~/Pictures
       endif
       breaksw
