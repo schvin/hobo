@@ -1,0 +1,2 @@
+setenv EC2_HOME "~/src/ec2-api-tools-1.6.8.0"
+setenv JAVA_HOME "/usr"

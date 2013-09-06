@@ -88,8 +88,12 @@ end
 
 # keychain
 if (-e /usr/local/bin/keychain) then
-  source ~/.keychain/`hostname`-csh-gpg
-  source ~/.keychain/`hostname`-csh
+  if (-f ~/.keychain/local-csh) then
+    source ~/.keychain/local-csh
+  endif
+  if (-f ~/.keychain/local-csh-gpg) then
+    source ~/.keychain/local-csh-gpg
+  endif
 endif
 
 # local
