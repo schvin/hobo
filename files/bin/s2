@@ -1,0 +1,13 @@
+#!/bin/sh
+
+acpi -V
+dbus-send --system --print-reply \
+    --dest="org.freedesktop.UPower" \
+    /org/freedesktop/UPower \
+    org.freedesktop.UPower.Suspend
+
+xscreensaver -no-splash &
+xscreensaver-command -lock
+acpi -V
+sudo pkill vpnc
+pkill ssh

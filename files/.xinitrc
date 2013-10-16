@@ -42,7 +42,7 @@ fi
 # start some nice programs
 
 
-
+# for x11 on osx
 /usr/X11/lib/X11/xinit/xinitrc.d/10-fontdir.sh
 xset fp+ ~/Desktop/fonts
 xset fp rehash
@@ -50,4 +50,3 @@ cd
 quartz-wm --only-proxy &
 /usr/local/bin/xmonad &
 xterm
-
