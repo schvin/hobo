@@ -1,11 +1,3 @@
-aterm*font: -*-proggytinysz-medium-*-*-*-10-*-*-*-*-*-*-*
-aterm*reverseVideo: on
-
 XTerm*font: -*-proggytinysz-medium-*-*-*-10-*-*-*-*-*-*-*
 XTerm*reverseVideo: off
 XTerm*loginShell:true
-*VT100*reverseVideo: on
-
-rxvt*scrollBar:false
-rxvt*font: -*-proggytinysz-medium-*-*-*-10-*-*-*-*-*-*-*
-rxvt*reverseVideo: off
