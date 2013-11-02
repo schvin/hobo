@@ -36,8 +36,8 @@ complete cd p/1/d/ # cd only to directories
 setenv CVS_RSH "/usr/bin/ssh"
 setenv EDITOR "vi"
 setenv IRCNAME "*Unknown*"
-setenv GOROOT "~/src/go"
-setenv PATH ~/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin:/usr/ccs/bin:/usr/ucb:/usr/local/share/python:~/src/go/bin:/usr/local/go/bin
+setenv GOROOT ~/src/go
+setenv PATH ~/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin:/usr/ccs/bin:/usr/ucb:/usr/local/share/python:/home/glewis/src/go/bin:/usr/local/go/bin
 setenv VISUAL "vi"
 setenv TMPDIR ~/tmp
 
@@ -63,6 +63,7 @@ if ($?OSTYPE) then
       breaksw
     case "linux":
       synclient TouchPadOff=1
+      alias ls "ls -aF --color"
     default:
       breaksw
   endsw
