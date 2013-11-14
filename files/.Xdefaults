@@ -1,3 +1,7 @@
-XTerm*font: -*-proggytinysz-medium-*-*-*-*-*-*-*-*-*-*-*
+XTerm*font: -*-profont-*-*-*-*-*-110-*-*-*-*-*-*
+#XTerm*font: -*-profont-*-*-*-*-*-*-*-*-*-*-*-*
+#XTerm*font: -*-neep-medium-*-*-*-11-*-*-*-*-*-*-*
+#XTerm*font: -*-proggytinysz-medium-*-*-*-10-*-*-*-*-*-*-*
+#XTerm*font: -*-proggyclean-medium-*-*-*-*-*-*-*-*-*-*-*
 XTerm*reverseVideo: off
 XTerm*loginShell:true

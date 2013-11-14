@@ -1,6 +1,6 @@
 import XMonad
  
 main = xmonad defaultConfig
-        { terminal = "xterm -bc -cr red -ls"
+        { terminal = "gnome-terminal"
         -- more changes
         }
