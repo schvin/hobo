@@ -16,7 +16,7 @@ setw -g monitor-activity on
 #setw -g window-status-alert-bg yellow
 setw -g window-status-bg brightblue
 setw -g window-status-current-bg red
-#set -g status-left "#[fg=white,bright,bg=blue] Session #[fg=yellow,bright,bg=blue]#S #[default] |" # session-name
+set -g status-right "#[fg=yellow]#(acpi -V | head -1 | sed -e 's/Battery 0: //' | sed -e 's/ remaining//';)"
 
 setw -g window-status-current-fg brightwhite
 setw -g window-status-fg white
