@@ -1,12 +1,12 @@
 #!/bin/sh
 
 acpi -V
-xrandr --auto
 dbus-send --system --print-reply \
     --dest="org.freedesktop.UPower" \
     /org/freedesktop/UPower \
     org.freedesktop.UPower.Suspend
 
+xrandr --auto
 xscreensaver -no-splash &
 xscreensaver-command -lock
 acpi -V

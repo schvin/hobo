@@ -2,6 +2,6 @@
 #  /usr/bin/calendar
 #endif
 
-if (-e /usr/local/bin/keychain) then
-  /usr/local/bin/keychain --host local
+if (-e /usr/local/bin/keychain || -e /usr/bin/keychain) then
+  keychain --host local
 endif

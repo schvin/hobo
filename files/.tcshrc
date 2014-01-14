@@ -91,7 +91,7 @@ foreach DIR (pub src bin tmp keys projects)
 end
 
 # keychain
-if (-e /usr/local/bin/keychain) then
+if (-e /usr/local/bin/keychain || -e /usr/bin/keychain) then
   if (-f ~/.keychain/local-csh) then
     source ~/.keychain/local-csh
   endif
