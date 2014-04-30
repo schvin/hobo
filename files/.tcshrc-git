@@ -1,0 +1,6 @@
+#setenv GIT_BRANCH_CMD "sh -c 'git branch 2> /dev/null' | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1) /'"
+#set prompt="%m:%~ `$GIT_BRANCH_CMD`%B%#%b "
+setenv GIT_BRANCH_CMD "sh -c 'git branch --no-color 2> /dev/null' | sed -e '/^[^*]/d' -e 's/* \(.*\)/|\1/'"
+setenv GIT_STATUS "sh -c 'git config --get remote.origin.url' | sed -e 's/.*:\(.*\)\/.*/@\1|/'"
+setenv GIT_PUBPRIV "sh -c 'git config --get remote.origin.url' | (grep github.com > /dev/null && echo -n '46m' || echo -n '44m')"
+set prompt="{%!} %n@%{\033[33m%}%B%m%b%{\033[0m%}:%~%{\033[`$GIT_PUBPRIV`\033[37m%}%B`$GIT_BRANCH_CMD``$GIT_STATUS`%b%{\033[0m%}% "
