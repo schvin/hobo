@@ -2,6 +2,6 @@ import XMonad
  
 main = xmonad defaultConfig
         { terminal = "gnome-terminal"
-        , focusFollowsMouse = False
+        -- , focusFollowsMouse = False
         -- more changes
         }
