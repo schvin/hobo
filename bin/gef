@@ -1,0 +1,53 @@
+#!/bin/sh
+#
+#  * * * WARNING * * *
+#
+# This will leave the file unencrypted in $TMPDIR while your editor
+# is open, and/or if the editor dies! Be aware of that, especially
+# on a shared or untrusted system! Not to mention, the shared memory,
+# editor temp file risks, etc.
+#
+# Assumes all encrypted files end in .gpg, otherwise it will attempt
+# to encrypt the file.
+#
+# Todo:
+#  - deal with lack of $TMPDIR
+#  - deal with multiple arguments/files
+#
+###
+
+if test $# -ne 1; then
+  echo "Please specify a filename, i.e.:"
+  echo
+  echo "  $0 file.txt.gpg"
+  exit 1
+fi
+
+GPGFILE=$1
+CLEARFILE=`basename $GPGFILE .gpg`
+GPGTEST1=`basename $GPGFILE`
+GPGTEST2=`basename $GPGFILE .gpg`
+TMPFILE="$TMPDIR/$CLEARFILE-$$"
+
+if test $GPGTEST1 = $GPGTEST2; then
+
+  echo "File was not encrypted, initializing encryption of plain-text"
+  echo "file, press any key to continue..."
+  read -n 1 -s
+  mv $GPGFILE $TMPFILE
+  GPGFILE="$GPGFILE.gpg"
+
+else
+
+  if [ -f $GPGFILE ]; then
+    gpg --output $TMPFILE $GPGFILE
+    #gpg --passphrase-fd 0 --batch --output $TMPFILE $GPGFILE
+  fi
+
+fi
+
+$EDITOR $TMPFILE
+gpg -se -r schvin@schvin.net -r defermat@defermat.net --output $GPGFILE $TMPFILE \
+  && git add $GPGFILE \
+  && git commit $GPGFILE \
+  && echo "cleaning up files... " && rm -v $TMPFILE
