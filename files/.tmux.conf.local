@@ -1,20 +1,22 @@
 set -g display-panes-active-colour cyan
 set -g display-panes-colour red
-set -g message-bg blue
-set -g message-fg black
+#set -g message-bg blue
+#set -g message-fg black
+set -g message-bg black
+set -g message-fg brightblue
 set -g pane-active-border-bg brightblue
 set -g pane-active-border-fg red
 set -g pane-border-bg brightyellow
 set -g pane-border-fg brightblue
 set -g set-titles off
-#set -g status-bg black
-set -g status-bg brightblue
+set -g status-bg black
+#set -g status-bg brightblue
 set -g status-fg brightwhite
 #set -g status-fg white
 set -g visual-activity on
 setw -g monitor-activity on
 #setw -g window-status-alert-bg yellow
-setw -g window-status-bg brightblue
+setw -g window-status-bg blue
 setw -g window-status-current-bg red
 #set -g status-right "#[fg=yellow]#(acpi -V | head -1 | sed -e 's/Battery 0: //' | sed -e 's/ remaining//';)"
 set -g status-left-length 50
@@ -27,9 +29,9 @@ setw -g window-status-fg white
 #set -g mouse-select-pane on
 #setw -g mode-mouse on
 
-set-option -g mouse-select-pane on
-set-option -g mouse-select-window on
-setw -g mode-mouse on
+#set-option -g mouse-select-pane on
+#set-option -g mouse-select-window on
+#setw -g mode-mouse on
 
 setw -g mode-keys vi
 bind-key -t vi-copy 'v' begin-selection
@@ -39,3 +41,4 @@ bind-key j save-buffer ~/.tmux-buffer \; run-shell "xsel -i -b <~/.tmux-buffer &
 
 #setw -g utf8 off
 #set -g status-utf8 off
+#
