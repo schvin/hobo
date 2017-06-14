@@ -20,7 +20,7 @@ setw -g window-status-bg blue
 setw -g window-status-current-bg red
 #set -g status-right "#[fg=yellow]#(acpi -V | head -1 | sed -e 's/Battery 0: //' | sed -e 's/ remaining//';)"
 set -g status-left-length 50
-set -g status-left "#[fg=green]#h|#[fg=brightblue]#(curl icanhazip.com)|vpn:#(ifconfig tun0 | grep 'inet addr:' | sed -e 's/.*inet addr://' | sed -e 's/\ .*//')|"
+set -g status-left "#[fg=green]#h|#[fg=brightblue]#(curl icanhazip.com)|vpn:#(ifconfig tun0 | grep 'inet ' | sed -e 's/.*inet //' | sed -e 's/\ .*//')|"
 set -g status-right "#[fg=yellow]%d %b %Y|%H:%M|#[fg=yellow]#(acpi -V | head -1 | sed -e 's/Battery 0: //' | sed -e 's/ remaining//';)"
 
 setw -g window-status-current-fg brightwhite
