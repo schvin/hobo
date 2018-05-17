@@ -39,3 +39,10 @@ alias vi=/usr/bin/nvi
 set EDITOR /usr/bin/nvi
 set VISUAL /usr/bin/nvi
 /home/glewis/projects/hobo/bin/linux/disable-touchpad.sh
+
+if ps ax | grep '[d]ropbox' > /dev/null
+else
+    ~/.dropbox-dist/dropboxd > /dev/null &
+end
+
+calendar -l 14 -f ~/projects/scallop/.calendar/dates
