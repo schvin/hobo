@@ -1,0 +1,2 @@
+# host on the ZeroTier work network that tmux-netstatus probes (ip = ping, host:port = tcp)
+10.20.70.2

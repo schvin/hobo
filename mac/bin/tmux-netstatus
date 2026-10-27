@@ -1,0 +1,140 @@
+#!/bin/bash
+# tmux status segment: public IPv4, IPv6 reachability, ZeroTier state.
+#
+#   203.0.113.7 v6 zt       normal: v6 works, zerotier up (split tunnel)
+#   203.0.113.7 v6  ZT→     zerotier is carrying the default route
+#   203.0.113.7 v6 zt!      zerotier joined but not OK, or probe host unreachable
+#   203.0.113.7 v6 zt?      zerotier has an address but nothing verified it works
+#
+# "zt" only goes green when a host on the work network answers. Put one in
+# ~/.config/hobo/zt-probe:  "10.1.2.3" (ping) or "git.corp:443" (tcp connect).
+#   offline                 no public IPv4
+#
+# Public-IP lookups are cached and refreshed in the background, immediately
+# when the network changes (default route moves) and otherwise every $TTL secs.
+# Never blocks tmux.
+
+# tmux runs #() jobs with its own minimal PATH (no /usr/local, no homebrew)
+PATH=/usr/local/bin:/opt/homebrew/bin:$PATH:/usr/sbin:/sbin
+
+TTL=${TMUX_NETSTATUS_TTL:-300}
+CACHE=${XDG_CACHE_HOME:-$HOME/.cache}/tmux-netstatus
+mkdir -p "$CACHE"
+
+C_IP='#[fg=#8be9fd,bold]'
+C_OK='#[fg=#50fa7b]'
+C_BAD='#[fg=#ff5555]'
+C_WARN='#[fg=#f1fa8c]'
+C_DIM='#[fg=#6272a4,strikethrough]'
+C_TUN='#[fg=#282a36,bg=#ff79c6,bold]'
+C_RST='#[default]'
+
+# --- zerotier -----------------------------------------------------------
+# Prefer zerotier-cli (needs a readable authtoken; install.sh can copy one to
+# ~/Library/Application Support/ZeroTier/One). Fall back to looking at
+# interfaces, which needs no privileges: ZT on macOS uses feth*/zt* devices.
+zt_devs=""
+zt_state=""  # "", up, bad
+if command -v zerotier-cli >/dev/null 2>&1 && command -v jq >/dev/null 2>&1 &&
+   json=$(zerotier-cli -j listnetworks 2>/dev/null) && [ -n "$json" ]; then
+  zt_devs=$(printf '%s' "$json" | jq -r '.[] | select(.status=="OK" and (.assignedAddresses|length)>0) | .portDeviceName' 2>/dev/null)
+  nets=$(printf '%s' "$json" | jq -r 'length' 2>/dev/null)
+  if [ -n "$zt_devs" ]; then zt_state=up
+  elif [ "${nets:-0}" -gt 0 ]; then zt_state=bad
+  fi
+else
+  for ifc in $(ifconfig -l); do
+    case $ifc in feth*|zt*)
+      ifconfig "$ifc" 2>/dev/null | grep -q 'inet ' && zt_devs="$zt_devs $ifc" ;;
+    esac
+  done
+  if [ -n "$zt_devs" ]; then zt_state=up
+  elif ls "/Library/Application Support/ZeroTier/One/networks.d/"*.conf >/dev/null 2>&1; then zt_state=bad
+  fi
+fi
+
+route_if() { route -n get "$@" 2>/dev/null | awk '/interface:/ {print $2}'; }
+def4_if=$(route_if 1.1.1.1)          # 1.1.1.1 rather than "default" so
+def6_if=$(route_if -inet6 2606:4700:4700::1111)  # ZT's 0/1 + 128/1 split routes count
+
+zt_default=0
+for d in $zt_devs; do
+  [ "$d" = "$def4_if" ] || [ "$d" = "$def6_if" ] && zt_default=1
+done
+
+# --- public ip (cached, async) ------------------------------------------
+fp="$def4_if $(route -n get default 2>/dev/null | awk '/gateway:/ {print $2}') $def6_if $zt_default"
+now=$(date +%s)
+last_fp=$(cat "$CACHE/fp" 2>/dev/null)
+last_t=$(cat "$CACHE/time" 2>/dev/null || echo 0)
+
+refresh() {
+  # mkdir is an atomic lock; stale locks (>30s) are broken.
+  if ! mkdir "$CACHE/lock" 2>/dev/null; then
+    [ $((now - $(stat -f %m "$CACHE/lock" 2>/dev/null || echo "$now"))) -gt 30 ] || return
+  fi
+  (
+    v4=$(curl -4 -fsS -m 4 https://ipv4.icanhazip.com 2>/dev/null | tr -d '[:space:]')
+    v6=$(curl -6 -fsS -m 4 https://ipv6.icanhazip.com 2>/dev/null | tr -d '[:space:]')
+    printf '%s' "$v4" >"$CACHE/v4"
+    printf '%s' "$v6" >"$CACHE/v6"
+    printf '%s' "$fp" >"$CACHE/fp"
+    date +%s >"$CACHE/time"
+    rmdir "$CACHE/lock"
+    tmux refresh-client -S 2>/dev/null
+  ) >/dev/null 2>&1 &
+}
+
+if [ "$fp" != "$last_fp" ] || [ $((now - last_t)) -ge "$TTL" ]; then
+  refresh
+fi
+
+# --- zerotier reachability probe (cached, async, every 60s) -------------
+probe=$(grep -v '^#' "$HOME/.config/hobo/zt-probe" 2>/dev/null | head -1 | tr -d '[:space:]')
+zt_reach=""   # "", ok, fail
+if [ "$zt_state" = up ] && [ -n "$probe" ]; then
+  p_t=$(cat "$CACHE/zt_time" 2>/dev/null || echo 0)
+  if [ "$probe $fp" != "$(cat "$CACHE/zt_key" 2>/dev/null)" ] || [ $((now - p_t)) -ge 60 ]; then
+    if mkdir "$CACHE/zt_lock" 2>/dev/null ||
+       [ $((now - $(stat -f %m "$CACHE/zt_lock" 2>/dev/null || echo "$now"))) -gt 30 ]; then
+      (
+        case $probe in
+          *:*) nc -z -G 3 "${probe%:*}" "${probe##*:}" ;;
+          *)   ping -c 1 -t 3 "$probe" ;;
+        esac && r=ok || r=fail
+        printf '%s' "$r" >"$CACHE/zt_reach"
+        printf '%s' "$probe $fp" >"$CACHE/zt_key"
+        date +%s >"$CACHE/zt_time"
+        rmdir "$CACHE/zt_lock"
+        tmux refresh-client -S 2>/dev/null
+      ) >/dev/null 2>&1 &
+    fi
+  fi
+  [ "$probe $fp" = "$(cat "$CACHE/zt_key" 2>/dev/null)" ] && zt_reach=$(cat "$CACHE/zt_reach" 2>/dev/null)
+fi
+
+v4=$(cat "$CACHE/v4" 2>/dev/null)
+v6=$(cat "$CACHE/v6" 2>/dev/null)
+stale=""; [ "$fp" != "$last_fp" ] && stale='#[dim]'
+
+# --- render -------------------------------------------------------------
+out=""
+if [ -n "$v4" ]; then out="${C_IP}${stale}${v4}${C_RST}"
+else out="${C_BAD}offline${C_RST}"
+fi
+if [ -n "$v6" ]; then out="$out ${C_OK}v6${C_RST}"
+else out="$out ${C_DIM}v6${C_RST}"
+fi
+case $zt_state in
+  up)
+    case $zt_reach in
+      ok)   zt="${C_OK}zt${C_RST}" ;;
+      fail) zt="${C_BAD}zt!${C_RST}" ;;
+      *)    zt="${C_WARN}zt?${C_RST}" ;;
+    esac
+    # full tunnel gets a loud block either way; the zt word above stays beside it
+    [ $zt_default = 1 ] && zt="${C_TUN} ZT→ ${C_RST}${zt}"
+    out="$out $zt" ;;
+  bad) out="$out ${C_BAD}zt!${C_RST}" ;;
+esac
+printf '%s' "$out"

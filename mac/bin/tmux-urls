@@ -1,0 +1,34 @@
+#!/bin/bash
+# Pick a URL from a tmux pane's scrollback with fzf and open it.
+# Bound to prefix-u (runs in a popup).
+#   enter   open with the default browser (=> Finicky rules)
+#   ctrl-b  choose a browser first
+#   ctrl-y  copy the URL instead of opening it
+
+pane=${1:-}
+urls=$(tmux capture-pane -p -J -S -5000 ${pane:+-t "$pane"} |
+  grep -oE '(https?|ftp|file)://[^][[:space:]<>"'\''`{}|\\^]+' |
+  sed -E 's/[.,;:!?)]+$//' |
+  awk '!seen[$0]++' | tail -r)
+
+[ -z "$urls" ] && { echo "no URLs in this pane"; sleep 1; exit 0; }
+
+out=$(printf '%s\n' "$urls" | fzf --no-sort --reverse --prompt='url> ' \
+  --header='enter: open · ctrl-b: pick browser · ctrl-y: copy' \
+  --expect=ctrl-b,ctrl-y) || exit 0
+key=$(sed -n 1p <<<"$out")
+url=$(sed -n 2p <<<"$out")
+[ -z "$url" ] && exit 0
+
+case $key in
+  ctrl-y) printf '%s' "$url" | pbcopy ;;
+  ctrl-b)
+    b=$(printf '%s\n' \
+      "Zen	app.zen-browser.zen" \
+      "Firefox Developer Edition	org.mozilla.firefoxdeveloperedition" \
+      "Chrome Canary	com.google.Chrome.canary" \
+      "Safari	com.apple.Safari" |
+      fzf --reverse --prompt='browser> ' --delimiter='\t' --with-nth=1) || exit 0
+    open -b "${b##*	}" "$url" ;;
+  *) open "$url" ;;
+esac

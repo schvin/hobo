@@ -1,1 +1,46 @@
 move-in script and files.
+
+mac/      current: ghostty + tmux + zsh + finicky on macOS.   ./mac/install.sh
+legacy/   the old unix/linux-desktop stuff (tcsh, xmonad, X11, fish, …), kept for reference.
+
+----------------------------------------------------------------------------
+mac/ cheat sheet                                          (prefix = C-b)
+
+layout
+  ghostty always opens into tmux session "main"     t <name>  attach-or-create a session
+  prefix | / -        split (keeps cwd)              prefix S  new session    prefix R  rename
+  prefix h j k l      move between panes             prefix s  session/window tree
+  prefix H J K L      resize (repeatable)            prefix C  set this session's color by hand
+  prefix < >          move window left/right         prefix =  even out panes
+  mouse: click panes/windows, wheel scrolls; pane borders can't be dragged.
+
+colors
+  each session gets an accent from its name (main = purple), used by the status badge,
+  the current window tab and the active pane border. Remote tmux (started over ssh)
+  puts its bar at the TOP, local stays at the bottom.
+
+nested tmux
+  prefix b            send C-b to the inner tmux
+  F12                 put the outer tmux to sleep (badge goes grey "OFF"); F12 again wakes it
+
+copy / paste
+  drag with the mouse, or prefix [ then v … y   -> macOS clipboard (OSC 52; works nested + ssh)
+  cmd+v pastes anywhere. shift+drag = native ghostty selection, bypassing tmux.
+
+links
+  cmd+click a URL     -> Finicky (default browser) applies ~/.finicky.js rules
+    + option -> Firefox Dev    + shift -> Chrome Canary    + fn -> Safari
+  prefix u            fzf list of URLs in the pane: enter open · ctrl-b pick browser · ctrl-y copy
+
+status bar (right)
+  203.0.113.7 v6 zt
+    ip       public IPv4 (dimmed briefly right after a network change, until rechecked)
+    v6       green = IPv6 works; grey struck-through = no IPv6
+    zt       green zt  = ZeroTier up AND the probe host answers
+             yellow zt? = ZeroTier has an address, but no probe host is set
+             red zt!    = joined but not OK, or probe host unreachable
+             pink ZT→   = default route goes over ZeroTier (shown next to zt/zt?/zt!)
+             no zt      = ZeroTier not installed / no networks joined
+  probe host: echo 10.1.2.3 > ~/.config/hobo/zt-probe   (or host:port for a TCP check)
+  `./install.sh --zerotier` lets zerotier-cli run without sudo (more precise status);
+  otherwise it's inferred from feth/zt interfaces.

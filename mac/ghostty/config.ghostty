@@ -1,0 +1,47 @@
+# ghostty — thin shell around tmux. tmux owns windows, panes, scrollback.
+# reload: cmd+shift+,    themes: ghostty +list-themes
+
+# --- look ---------------------------------------------------------------
+theme = Dracula+
+font-size = 14
+bold-is-bright = true
+cursor-style = block
+cursor-style-blink = false
+window-padding-x = 4
+window-padding-y = 2
+window-padding-balance = true
+background-opacity = 1
+
+# --- always land in tmux ------------------------------------------------
+# one long-lived session called "main"; reattaches if it already exists.
+command = /opt/homebrew/bin/tmux new-session -A -s main
+window-save-state = always
+confirm-close-surface = false
+quit-after-last-window-closed = true
+
+# --- keyboard -----------------------------------------------------------
+# left option = Meta (for tmux/zsh alt bindings); right option still types ü, é, etc.
+macos-option-as-alt = left
+
+# ghostty's own tabs/splits aren't used — free those keys so nothing surprising happens.
+keybind = cmd+d=unbind
+keybind = cmd+shift+d=unbind
+keybind = cmd+t=unbind
+
+# --- clipboard ----------------------------------------------------------
+# tmux (local, nested, or over ssh) sends copies via OSC 52; let them through.
+clipboard-read = allow
+clipboard-write = allow
+clipboard-paste-protection = true
+clipboard-trim-trailing-spaces = true
+copy-on-select = false
+
+# --- mouse / links ------------------------------------------------------
+# cmd+click opens a URL (via macOS default browser = Finicky -> rules).
+# shift+drag bypasses tmux and does a native ghostty selection.
+mouse-hide-while-typing = true
+link-url = true
+
+# --- shell integration --------------------------------------------------
+# ssh-terminfo installs xterm-ghostty on hosts you ssh to, so remote tmux/vim behave.
+shell-integration-features = cursor,sudo,title,ssh-env,ssh-terminfo

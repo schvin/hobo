@@ -1,0 +1,33 @@
+# ~/.zshrc -> hobo/mac/zsh/zshrc
+# machine-specific bits go in ~/.zshrc.local (not in git)
+
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+export EDITOR=vi VISUAL=vi PAGER=less LESS=-FRX
+
+# --- oh-my-zsh ----------------------------------------------------------
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="robbyrussell"
+HIST_STAMPS="yyyy-mm-dd"
+plugins=(git fzf zoxide)
+source $ZSH/oh-my-zsh.sh
+
+# --- history: big, shared across tmux panes ----------------------------
+HISTSIZE=200000
+SAVEHIST=200000
+setopt extended_history hist_expire_dups_first hist_ignore_dups \
+       hist_ignore_space hist_verify inc_append_history share_history
+
+# --- brew-installed zsh niceties ---------------------------------------
+_bp=/opt/homebrew/share
+[ -f $_bp/zsh-autosuggestions/zsh-autosuggestions.zsh ] && source $_bp/zsh-autosuggestions/zsh-autosuggestions.zsh
+[ -f $_bp/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && source $_bp/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+unset _bp
+
+# --- small conveniences -------------------------------------------------
+command -v eza >/dev/null && alias ll='eza -l --git --group-directories-first' la='eza -la --git'
+alias t='tmux new-session -A -s'            # t work  -> attach-or-create "work"
+alias tl='tmux list-sessions'
+alias myip='curl -4s ipv4.icanhazip.com; curl -6s -m3 ipv6.icanhazip.com'
+alias zt='zerotier-cli listnetworks'
+
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local

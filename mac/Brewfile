@@ -1,0 +1,18 @@
+# brew bundle --file=mac/Brewfile
+
+# terminal core
+brew "tmux"
+brew "fzf"            # fuzzy finder: ctrl-r history, ctrl-t files, tmux url picker
+brew "zoxide"         # `z proj` jumps to ~/projects/...
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+
+# modern replacements
+brew "ripgrep"        # rg
+brew "fd"
+brew "bat"
+brew "eza"
+brew "jq"
+
+# browser router: links from ghostty/tmux/anywhere go through ~/.finicky.js
+cask "finicky"

@@ -1,0 +1,40 @@
+#!/bin/bash
+# Give a tmux session a stable accent color derived from its name.
+# The status bar, current-window tab and active pane border all use @accent,
+# so each session is recognizable at a glance.
+#
+#   tmux-session-color <session>          pick from palette by name hash
+#   tmux set -t <session> @accent '#hex'  override by hand (sticks; not overwritten)
+#   tmux-session-color --all              (re)color every session
+
+palette=(
+  '#ff5555' # red
+  '#ffb86c' # orange
+  '#f1fa8c' # yellow
+  '#50fa7b' # green
+  '#8be9fd' # cyan
+  '#bd93f9' # purple
+  '#ff79c6' # pink
+  '#00d7af' # teal
+  '#5fafff' # blue
+  '#d7ff5f' # lime
+)
+
+color_one() {
+  s=$1
+  # respect a hand-set color
+  [ "$(tmux show -qv -t "$s" @accent_manual 2>/dev/null)" = 1 ] && return
+  # "main" always gets purple so the home session feels like home
+  if [ "$s" = main ]; then c='#bd93f9'
+  else
+    h=$(printf '%s' "$s" | cksum | cut -d' ' -f1)
+    c=${palette[$((h % ${#palette[@]}))]}
+  fi
+  tmux set -t "$s" @accent "$c"
+}
+
+if [ "$1" = --all ]; then
+  tmux list-sessions -F '#{session_name}' | while read -r s; do color_one "$s"; done
+elif [ -n "$1" ]; then
+  color_one "$1"
+fi
