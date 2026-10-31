@@ -11,7 +11,8 @@
 #   offline                 no public IPv4
 #
 # Public-IP lookups are cached and refreshed in the background, immediately
-# when the network changes (default route moves) and otherwise every $TTL secs.
+# when the network changes (default route moves) and otherwise every $TTL secs
+# (30s while either lookup is failing).
 # Never blocks tmux.
 
 # tmux runs #() jobs with its own minimal PATH (no /usr/local, no homebrew)
@@ -85,7 +86,13 @@ refresh() {
   ) >/dev/null 2>&1 &
 }
 
-if [ "$fp" != "$last_fp" ] || [ $((now - last_t)) -ge "$TTL" ]; then
+# a failed lookup retries sooner, so a blip doesn't stick for the whole TTL
+ttl=$TTL
+if [ "$TTL" -gt 30 ] && { [ ! -s "$CACHE/v4" ] || [ ! -s "$CACHE/v6" ]; }; then
+  ttl=30
+fi
+
+if [ "$fp" != "$last_fp" ] || [ $((now - last_t)) -ge "$ttl" ]; then
   refresh
 fi
 
