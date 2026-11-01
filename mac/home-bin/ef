@@ -1,0 +1,3 @@
+#!/bin/sh
+
+${EDITOR:-vi} $* && git add $* && git commit $* && git push

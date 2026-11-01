@@ -25,6 +25,7 @@ link zsh/zshrc               "$HOME/.zshrc"
 link finicky/finicky.js      "$HOME/.finicky.js"
 link hobo/zt-probe           "$HOME/.config/hobo/zt-probe"
 for f in "$here"/bin/*; do link "bin/$(basename "$f")" "$HOME/.local/bin/$(basename "$f")"; done
+for f in "$here"/home-bin/*; do link "home-bin/$(basename "$f")" "$HOME/bin/$(basename "$f")"; done
 
 echo "== git"
 [ -f "$HOME/.gitignore_global" ] || printf '.DS_Store\n' > "$HOME/.gitignore_global"

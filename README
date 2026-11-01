@@ -3,6 +3,8 @@ move-in script and files.
 mac/      current: ghostty + tmux + zsh + finicky on macOS.   ./mac/install.sh
 legacy/   the old unix/linux-desktop stuff (tcsh, xmonad, X11, fish, …), kept for reference.
 
+mac/home-bin/ is linked into ~/bin (on PATH); mac/bin/ is linked into ~/.local/bin.
+
 ----------------------------------------------------------------------------
 mac/ cheat sheet                                          (prefix = C-b)
 
