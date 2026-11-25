@@ -29,6 +29,7 @@ unset _bp
 command -v eza >/dev/null && alias ll='eza -l --git --group-directories-first' la='eza -la --git'
 alias t='tmux new-session -A -s'            # t work  -> attach-or-create "work"
 alias tl='tmux list-sessions'
+alias tp='tmux-pick'                        # tp / tp tines code -> project session+window
 alias myip='curl -4s ipv4.icanhazip.com; curl -6s -m3 ipv6.icanhazip.com'
 alias zt='zerotier-cli listnetworks'
 

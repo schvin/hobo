@@ -1,0 +1,81 @@
+#!/bin/bash
+# tmux-pick: fuzzy-jump to a project. One tmux session per service, one window per repo.
+#   prefix f            in tmux (popup)
+#   tp                  from a shell (attaches when outside tmux)
+#   tp tines code       skip the menu, jump to the best match
+#
+# Work projects ($HOBO_WORK, default ~/projects/q) are listed first: every top-level
+# dir, every git repo up to $HOBO_WORK_DEPTH (4) levels down, and the dirs between
+# (handy for a cross-repo claude session). Other repos under $HOBO_PROJECTS
+# (~/projects, 2 levels) come after, shown with a ~/ prefix.
+#
+#   q/tines.a.internal          -> session "tines_a_internal", window "tines.a.internal"
+#   q/tines.a.internal/code     -> session "tines_a_internal", window "code"
+#   ~/projects/scallop          -> session "scallop",          window "scallop"
+#
+# A window this script opened (or any pane already sitting in that dir) is reused
+# instead of opening a duplicate. ● marks dirs that already have a pane in them.
+
+work=${HOBO_WORK:-$HOME/projects/q}
+projects=${HOBO_PROJECTS:-$HOME/projects}
+depth=${HOBO_WORK_DEPTH:-4}
+skip='( -name node_modules -o -name .terraform -o -name .venv -o -name vendor ) -prune'
+
+# repos <root> <depth>: repo dirs under root, relative, plus every dir between root and them
+repos() {
+  (cd "$1" 2>/dev/null && find . -mindepth 2 -maxdepth $(( $2 + 1 )) $skip -o -name .git -prune -print) |
+    sed -e 's#^\./##' -e 's#/\.git$##' |
+    awk -F/ '{ p = $1; print p; for (i = 2; i <= NF; i++) { p = p "/" $i; print p } }'
+}
+
+# list: "<mark> <label>\t<abs dir>" lines, work first
+list() {
+  HOBO_OPEN=$(tmux list-panes -a -F '#{pane_current_path}' 2>/dev/null | sort -u); export HOBO_OPEN
+  # emit <label-prefix> <abs-root>: read rel paths on stdin
+  emit() { awk -v lp="$1" -v root="$2" '
+    BEGIN { n = split(ENVIRON["HOBO_OPEN"], o, "\n"); for (i = 1; i <= n; i++) seen[o[i]] = 1 }
+    { d = root "/" $0; printf "%s %s%s\t%s\n", (seen[d] ? "●" : " "), lp, $0, d }'; }
+  if [ -d "$work" ]; then
+    { find "$work" -mindepth 1 -maxdepth 1 -type d ! -name '.*' | sed "s#^$work/##"; repos "$work" "$depth"; } |
+      sort -u | emit "$(basename "$work")/" "$work"
+  fi
+  if [ -d "$projects" ]; then
+    repos "$projects" 2 | awk -F/ 'NF == 1' | grep -vx "$(basename "$work")" | sort -u |
+      emit "~${projects#"$HOME"}/" "$projects"
+  fi
+}
+
+if [ $# -gt 0 ]; then   # tp tines code -> best match, no menu
+  pick=$(list | fzf --filter="$*" --scheme=path --tiebreak=index --delimiter='\t' --with-nth=1 | head -1)
+  [ -z "$pick" ] && { echo "no project matches: $*" >&2; exit 1; }
+else
+pick=$(list | fzf --reverse --scheme=path --tiebreak=index --prompt='project> ' \
+  --header='enter: open/jump  · ● = a pane is already there' --delimiter='\t' --with-nth=1) || exit 0
+fi
+dir=${pick#*$'\t'}
+[ -d "$dir" ] || { echo "no such dir: $dir"; sleep 1; exit 1; }
+
+# session = service (first path component under work, or the project), window = the rest
+case $dir in
+  "$work"/*) rel=${dir#"$work"/}; svc=${rel%%/*}; sub=${rel#"$svc"}; sub=${sub#/} ;;
+  *)         svc=$(basename "$dir"); sub= ;;
+esac
+sess=$(printf '%s' "$svc" | tr '.:' '__')
+wname=${sub:-$svc}
+
+# reuse: a window we opened for this dir, else any pane already in it
+win=$(tmux list-windows -a -F '#{@hobo_dir}	#{window_id}' 2>/dev/null | awk -F'\t' -v d="$dir" '$1 == d { print $2; exit }')
+[ -z "$win" ] && win=$(tmux list-panes -a -F '#{pane_current_path}	#{window_id}' 2>/dev/null | awk -F'\t' -v d="$dir" '$1 == d { print $2; exit }')
+
+if [ -z "$win" ]; then
+  if tmux has-session -t "=$sess" 2>/dev/null; then
+    win=$(tmux new-window -d -P -F '#{window_id}' -t "=$sess:" -n "$wname" -c "$dir")
+  else
+    win=$(tmux new-session -d -P -F '#{window_id}' -s "$sess" -n "$wname" -c "$dir")
+  fi
+  tmux set -w -t "$win" @hobo_dir "$dir"
+fi
+
+tmux select-window -t "$win"
+sid=$(tmux display -p -t "$win" '#{session_id}')
+if [ -n "${TMUX:-}" ]; then tmux switch-client -t "$sid"; else exec tmux attach -t "$sid"; fi

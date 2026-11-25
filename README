@@ -14,6 +14,9 @@ layout
   prefix h j k l      move between panes             prefix s  session/window tree
   prefix H J K L      resize (repeatable)            prefix C  set this session's color by hand
   prefix < >          move window left/right         prefix =  even out panes
+  prefix f / tp       project picker: ~/projects/q first (4 deep), then ~/projects
+                      session per service, window per repo; reuses open ones (●)
+  tp tines code       jump straight to the best match     prefix L  last session
   mouse: click panes/windows, wheel scrolls; pane borders can't be dragged.
 
 colors
