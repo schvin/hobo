@@ -1,7 +1,7 @@
 # ~/.zshrc -> hobo/mac/zsh/zshrc
 # machine-specific bits go in ~/.zshrc.local (not in git)
 
-export PATH="$HOME/bin:$HOME/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+export PATH="$HOME/bin:$HOME/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/glewis/.fleetctl:$PATH"
 export PAGER=less LESS=-FRX
 if (( $+commands[nvi] )); then export EDITOR=nvi VISUAL=nvi; else export EDITOR=vi VISUAL=vi; fi
 export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
